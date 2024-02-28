@@ -16,12 +16,13 @@ const handler = async (req: Request): Promise<Response> => {
     if (OPENAI_API_TYPE === 'azure') {
       url = `${OPENAI_API_HOST}/openai/deployments?api-version=${OPENAI_API_VERSION}`;
     }
-
+    const apiKey = key ? key : process.env.OPENAI_API_KEY;
+    //console.log(`The API key is: ${apiKey}`);
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
         ...(OPENAI_API_TYPE === 'openai' && {
-          Authorization: `Bearer ${key ? key : process.env.OPENAI_API_KEY}`
+          Authorization: `Bearer ${apiKey}`
         }),
         ...(OPENAI_API_TYPE === 'azure' && {
           'api-key': `${key ? key : process.env.OPENAI_API_KEY}`
@@ -31,6 +32,7 @@ const handler = async (req: Request): Promise<Response> => {
         }),
       },
     });
+    //console.log(await response.text());
 
     if (response.status === 401) {
       return new Response(response.body, {
